@@ -1,0 +1,36 @@
+﻿@model IEnumerable<TicTacToe.Models.Row>
+<a asp-controller="Game" asp-action="Reset">Reset</a>
+<table>
+    @if (Model != null && Model.Count() > 0)
+    {
+        foreach (var row in Model)
+        {
+            <tr id="r_@row.Id">
+                @if (row.Cells != null && row.Cells.Count > 0)
+                {
+                    foreach (var cell in row.Cells)
+                    {
+                        string id = $"r_{row.Id}c_{cell.Id}";
+                        <td onclick='GetCanvas("@id", true)'>
+                            <canvas id="@id"></canvas>
+                        </td>
+                    }
+                }
+            </tr>
+        }
+    }
+</table>
+
+
+@if (ViewBag.Results != null)
+{
+    @foreach (var item in ViewBag.Results)
+    {
+        <script>
+            shapeType = '@item.Value';
+            GetCanvas('@item.Id')
+        </script>
+    }
+}
+
+
