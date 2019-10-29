@@ -9,12 +9,14 @@ using TicTacToe.Helpers.AbstractFactory;
 using TicTacToe.Helpers.Builder;
 using TicTacToe.Models;
 using TicTacToe.Repositories;
+using TicTacToe.Helpers.Decorator;
 
 namespace TicTacToe.Controllers
 {
     public class GameController : Controller
     {
         private readonly Repo repo;
+        private AbstractResult resultdecorator;
 
         public GameController(Repo repo)
         {
@@ -22,7 +24,9 @@ namespace TicTacToe.Controllers
         }
         public IActionResult Small()
         {
-            ViewBag.Results = repo.GetResults();
+            var list = repo.GetResults();
+            GetDecorated(list);
+            ViewBag.Results = list;
             return returnView(MethodBase.GetCurrentMethod().Name.ToLower());
         }
         public IActionResult Medium()
@@ -45,6 +49,23 @@ namespace TicTacToe.Controllers
         {
             repo.ResetResult();
             return RedirectToAction(nameof(Small));
+        }
+        private void GetDecorated(List<Result> results)
+        {
+            if (results.Count>2 &&
+                results[0].Value==results[1].Value && 
+                results[0].Value==results[2].Value &&
+                results[0].Id.StartsWith("r_0") &&
+                results[1].Id.StartsWith("r_0")&& 
+                results[2].Id.StartsWith("r_0"))
+            {
+                AbstractResult result1 = new ResultDecorator(results[0]);
+                result1.Decorate();
+                AbstractResult result2 = new ResultDecorator(results[1]);
+                result2.Decorate();
+                AbstractResult result3 = new ResultDecorator(results[2]);
+                result3.Decorate();
+            }
         }
     }
 }

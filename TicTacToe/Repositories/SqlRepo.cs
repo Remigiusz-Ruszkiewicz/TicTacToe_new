@@ -28,6 +28,10 @@ namespace TicTacToe.Repositories
 
         public override void SetResult(Result result)
         {
+            if (context.Results.Find(result.Id)!=null)
+            {
+                return;
+            }
             context.Results.Add(result);
             context.SaveChanges();
         }

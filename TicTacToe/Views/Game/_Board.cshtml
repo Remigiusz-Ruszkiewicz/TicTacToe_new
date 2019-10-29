@@ -26,10 +26,21 @@
 {
     @foreach (var item in ViewBag.Results)
     {
-        <script>
+
+        if (!item.IsDecorated)
+        {
+            <script>
             shapeType = '@item.Value';
             GetCanvas('@item.Id')
-        </script>
+            </script>
+        }
+        else
+        {
+            <script>
+            shapeType = '@item.Value';
+            GetCanvas('@item.Id',false,true)
+            </script>
+        }
     }
 }
 

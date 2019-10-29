@@ -1,0 +1,22 @@
+﻿@using Microsoft.AspNetCore.Builder
+@using Microsoft.AspNetCore.Http.Features
+@using Microsoft.AspNetCore.Localization
+@using Microsoft.AspNetCore.Mvc.Localization
+@using Microsoft.Extensions.Options
+
+@inject IOptions<RequestLocalizationOptions> LocOptions
+
+@{
+    var requestCulture = Context.Features.Get<IRequestCultureFeature>();
+    var returnUrl = string.IsNullOrEmpty(Context.Request.Path) ? "~/" : $"~{Context.Request.Path.Value}";
+    string selectedPl = requestCulture.RequestCulture.UICulture.Name == "pl-PL" ? "selectedLanguage" : "";
+    string selectedEn = requestCulture.RequestCulture.UICulture.Name == "en-US" ? "selectedLanguage" : "";
+}
+<div class="language pull-right" title="@Localizer["Request culture provider:"] @requestCulture?.Provider?.GetType().Name">
+    <form id="selectLanguagePl" asp-controller="Home" asp-action="SetLanguage" asp-route-returnUrl="@returnUrl" method="post" class="form-inline" role="form">
+        <input type="submit" name="culture" value="pl-PL" asp-for="@requestCulture.RequestCulture.UICulture.Name" />
+    </form>
+    <form id="selectLanguageEn" asp-controller="Home" asp-action="SetLanguage" asp-route-returnUrl="@returnUrl" method="post" class="form-inline marginLeft10" role="form">
+        <input type="submit" name="culture" value="en-US" asp-for="@requestCulture.RequestCulture.UICulture.Name" />
+    </form>
+</div>

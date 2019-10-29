@@ -1,16 +1,20 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Localization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Razor;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using TicTacToe.Data;
 using TicTacToe.Repositories;
+using TicTacToe.Resoursies;
 
 namespace TicTacToe
 {
@@ -40,30 +44,47 @@ namespace TicTacToe
             //services.AddScoped<Repo, JsonRepo>();
             //services.AddSingleton<Repo, JsonRepo>();
 
-            services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
-        }
-
-        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
-        {
-            if (env.IsDevelopment())
+            services.AddMvc()
+               .AddViewLocalization(
+                   LanguageViewLocationExpanderFormat.Suffix,
+                   opts => { opts.ResourcesPath = "Resources"; })
+               .AddDataAnnotationsLocalization(options => options
+                   .DataAnnotationLocalizerProvider = (type, factory) => factory.Create(typeof(SharedResource)))
+               .SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
+            services.Configure<RequestLocalizationOptions>(options =>
             {
-                app.UseDeveloperExceptionPage();
-            }
-            else
-            {
-                app.UseExceptionHandler("/Home/Error");
-            }
+                var supportCultures = new List<CultureInfo>
+                {
+                    new CultureInfo("en-US"),
+                    new CultureInfo("pl-PL")
+                };
 
-            app.UseStaticFiles();
-            app.UseCookiePolicy();
-
-            app.UseMvc(routes =>
-            {
-                routes.MapRoute(
-                    name: "default",
-                    template: "{controller=Home}/{action=Index}/{id?}");
+                options.DefaultRequestCulture = new RequestCulture("pl-PL", "pl-PL");
+                options.SupportedCultures = supportCultures;
+                options.SupportedUICultures = supportCultures;
             });
         }
-    }
-}
+            // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
+            public void Configure(IApplicationBuilder app, IHostingEnvironment env)
+            {
+                if (env.IsDevelopment())
+                {
+                    app.UseDeveloperExceptionPage();
+                }
+                else
+                {
+                    app.UseExceptionHandler("/Home/Error");
+                }
+                app.UseRequestLocalization();
+                app.UseStaticFiles();
+                app.UseCookiePolicy();
+
+                app.UseMvc(routes =>
+                {
+                    routes.MapRoute(
+                        name: "default",
+                        template: "{controller=Home}/{action=Index}/{id?}");
+                });
+            }
+        }
+    } 
